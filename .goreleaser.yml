@@ -1,0 +1,36 @@
+version: 2
+builds:
+  - binary: tfupdate
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+release:
+  prerelease: auto
+changelog:
+  filters:
+    exclude:
+      - Merge pull request
+      - Merge branch
+      - Update README
+      - Update CHANGELOG
+brews:
+  - repository:
+      owner: nholuongut
+      name: homebrew-tfupdate
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: "Masayuki Morita"
+      email: nholuongut@gmail.com
+    homepage: https://github.com/nholuongut/tfupdate
+    description: "Update version constraints in your Terraform configurations"
+    skip_upload: auto
+    test: |
+      system "#{bin}/tfupdate --version"
+    install: |
+      bin.install "tfupdate"

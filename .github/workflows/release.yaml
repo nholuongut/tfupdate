@@ -1,0 +1,38 @@
+name: release
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+    - "v[0-9]+.*"
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: '.go-version'
+    - name: Generate github app token
+      uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4  # v1.10.3
+      id: app-token
+      with:
+        app-id: ${{ secrets.APP_ID }}
+        private-key: ${{ secrets.APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: homebrew-tfupdate
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        version: "~> v2"
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HOMEBREW_TAP_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
